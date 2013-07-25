@@ -9,6 +9,7 @@ import re
 import pprint
 import copy
 import getpass
+import time
 
 try:
 	import keyring
@@ -88,9 +89,11 @@ class ownCloudSync():
 	def __init__(self, cfg = None):
 		"""initialize"""
 		self.cfg = cfg
-		global USERNAME, PASSWORD, SSLFINGERPRINT, USE_KEYRING
+		global USERNAME, PASSWORD, SSLFINGERPRINT, USE_KEYRING, CONTINUOUS_LOOP, INTERVAL
 		USERNAME = cfg['user']
 		PASSWORD = cfg['pass']
+		INTERVAL = cfg['interval']
+		CONTINUOUS_LOOP = cfg['continuous_loop']
 		SSLFINGERPRINT = cfg['sslfingerprint']
 		USE_KEYRING = cfg['use_keyring']
 		libVersion = csynclib.csync_version(0,40,1)
@@ -98,17 +101,25 @@ class ownCloudSync():
 			print 'libocsync version: ', libVersion
 		if libVersion not in ('0.70.4', '0.70.5','0.70.6','0.70.7'):
 			print 'This version of libocsync %s is not tested against ownCloud server 4.7.5.' % libVersion
-		c = csynclib.CSYNC()
-		self.ctx = ctypes.pointer(c)
-		self.buildURL()
-		#pprint.pprint(self.cfg)
-		print 'Syncing %s to %s logging in as user: %s' %  (self.cfg['src'], 
+		while True:
+			c = csynclib.CSYNC()
+			self.ctx = ctypes.pointer(c)
+			self.buildURL()
+			#pprint.pprint(self.cfg)
+			print 'Syncing %s to %s logging in as user: %s' %  (self.cfg['src'], 
 			self.cfg['url'],
 			USERNAME,
 			)
-		if cfg.has_key('dry_run') and cfg['dry_run']:
-			return
-		self.sync()
+			if cfg.has_key('dry_run') and cfg['dry_run']:
+				return
+			self.sync()
+			if not CONTINUOUS_LOOP:
+				print 'Continuous looping disabled!'
+				break
+			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
+			time.sleep(INTERVAL)
+			
+			
 
 	def buildURL(self):
 		"""build the URL we use for owncloud"""
