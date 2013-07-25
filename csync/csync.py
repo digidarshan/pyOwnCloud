@@ -278,13 +278,13 @@ def startSync(parser):
 	cfg = getConfig(parser)
 	
 	try:
-		while True:
-			ownCloudSync(cfg)
-			if not CONTINUOUS_LOOP:
-				print 'Continuous looping disabled!'
-				break
-			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
-			time.sleep(INTERVAL)
+		ownCloudSync(cfg)
+#		while True:
+#			if not CONTINUOUS_LOOP:
+#				print 'Continuous looping disabled!'
+#				break
+#			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
+#			time.sleep(INTERVAL)
 	except KeyError:
 		exc_type, exc_value, exc_tb = sys.exc_info()
 		print 'Sorry this option: %s is required, was not found in cfg file or on cmd line.' % (exc_value)
