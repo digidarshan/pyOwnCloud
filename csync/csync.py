@@ -101,25 +101,18 @@ class ownCloudSync():
 			print 'libocsync version: ', libVersion
 		if libVersion not in ('0.70.4', '0.70.5','0.70.6','0.70.7'):
 			print 'This version of libocsync %s is not tested against ownCloud server 4.7.5.' % libVersion
-		while True:
-			c = csynclib.CSYNC()
-			self.ctx = ctypes.pointer(c)
-			self.buildURL()
-			#pprint.pprint(self.cfg)
-			print 'Syncing %s to %s logging in as user: %s' %  (self.cfg['src'], 
-			self.cfg['url'],
-			USERNAME,
-			)
-			if cfg.has_key('dry_run') and cfg['dry_run']:
-				break
-			self.sync()
-			if not CONTINUOUS_LOOP:
-				print 'Continuous looping disabled!'
-				break
-			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
-			time.sleep(INTERVAL)
-		return
-
+		c = csynclib.CSYNC()
+		self.ctx = ctypes.pointer(c)
+		self.buildURL()
+		#pprint.pprint(self.cfg)
+		print 'Syncing %s to %s logging in as user: %s' %  (self.cfg['src'], 
+		self.cfg['url'],
+		USERNAME,
+		)
+		if cfg.has_key('dry_run') and cfg['dry_run']:
+			return
+		self.sync()
+		
 	def buildURL(self):
 		"""build the URL we use for owncloud"""
 		url = self.cfg['url']
@@ -263,6 +256,8 @@ def getConfig(parser):
 	cfg.setdefault('pass', None)
 	cfg.setdefault('user', getpass.getuser())
 	cfg.setdefault('use_keyring', False)
+	cfg.setdefault('interval', 20.0)
+	cfg.setdefault('continuous_loop', False)
 	if os.environ.has_key('OCPASS'):
 		cfg['pass'] = os.environ['OCPASS']
 		if DEBUG:
@@ -281,8 +276,15 @@ def getConfig(parser):
 
 def startSync(parser):
 	cfg = getConfig(parser)
+	
 	try:
-		ownCloudSync(cfg)
+		while True:
+			ownCloudSync(cfg)
+			if not CONTINUOUS_LOOP:
+				print 'Continuous looping disabled!'
+				break
+			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
+			time.sleep(INTERVAL)
 	except KeyError:
 		exc_type, exc_value, exc_tb = sys.exc_info()
 		print 'Sorry this option: %s is required, was not found in cfg file or on cmd line.' % (exc_value)
