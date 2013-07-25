@@ -92,7 +92,7 @@ class ownCloudSync():
 		global USERNAME, PASSWORD, SSLFINGERPRINT, USE_KEYRING, CONTINUOUS_LOOP, INTERVAL
 		USERNAME = cfg['user']
 		PASSWORD = cfg['pass']
-		INTERVAL = cfg['interval']
+		INTERVAL = float(cfg['interval'])
 		CONTINUOUS_LOOP = cfg['continuous_loop']
 		SSLFINGERPRINT = cfg['sslfingerprint']
 		USE_KEYRING = cfg['use_keyring']
@@ -111,15 +111,14 @@ class ownCloudSync():
 			USERNAME,
 			)
 			if cfg.has_key('dry_run') and cfg['dry_run']:
-				return
+				break
 			self.sync()
 			if not CONTINUOUS_LOOP:
 				print 'Continuous looping disabled!'
 				break
 			print 'Continous looping enabled. Waiting for %s seconds before next sync' % INTERVAL
 			time.sleep(INTERVAL)
-			
-			
+		return
 
 	def buildURL(self):
 		"""build the URL we use for owncloud"""
