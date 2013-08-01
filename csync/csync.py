@@ -145,6 +145,7 @@ class ownCloudSync():
 		acb = csynclib.csync_auth_callback(authCallback)
 		if DEBUG:
 			print 'authCallback setup'
+			csynclib.csync_set_log_verbosity(self.ctx, ctypes.c_int(11))
 		csynclib.csync_set_auth_callback(self.ctx, acb)
 
 		r = csynclib.csync_init(self.ctx)
