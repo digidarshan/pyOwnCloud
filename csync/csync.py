@@ -359,6 +359,8 @@ Password options:
 		global DEBUG
 		DEBUG = True
 		print 'Turning debug on'
+		
+	print 'DigiDarshan modified version for logging'
 	startSync(parser)
 
 if __name__ == '__main__':
