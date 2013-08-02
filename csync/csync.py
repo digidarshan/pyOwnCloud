@@ -138,14 +138,17 @@ class ownCloudSync():
 		return
 
 	def sync(self):
+		lcb = csynclib.csync_log_callback(log)
+		csynclib.csync_set_log_verbosity(self.ctx, ctypes.c_int(9))
+		if DEBUG:
+			print 'logCallback setup'
+		csynclib.csync_set_log_callback(self.ctx, lcb)
 		r = csynclib.csync_create(self.ctx, self.cfg['src'], self.cfg['url'])
 		if r != 0:
 			error(self.ctx,'csync_create', r)
-		csynclib.csync_set_log_callback(self.ctx, csynclib.csync_log_callback(log))
 		acb = csynclib.csync_auth_callback(authCallback)
 		if DEBUG:
 			print 'authCallback setup'
-			csynclib.csync_set_log_verbosity(self.ctx, ctypes.c_int(11))
 		csynclib.csync_set_auth_callback(self.ctx, acb)
 
 		r = csynclib.csync_init(self.ctx)
